@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eco-Flow Bot | Sistema Inteligente de Filtración</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-page: #2a3d74; 
+            --bg-card: #ffffff; 
+            --text-main: #1e293b; 
+            --primary-ocean: #0077be; 
+            --octopus-red: #e03131; 
+            --success: #0ca678; 
+            --danger: #f03e3e; 
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            background: var(--bg-page); 
+            color: var(--text-main); 
+            font-family: 'Poppins', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        .page-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* --- PORTADA: SOLO TU LOGO --- */
+        header.hero-section {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .logo-custom { 
+            max-width: 800px; 
+            width: 100%;
+            height: auto;
+        }
+
+        /* --- DASHBOARD SECTION --- */
+        section.dashboard-section {
+            padding: 80px 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .status-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 25px 30px;
+            background: var(--bg-card);
+            border-radius: 20px;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+
+        .card { 
+            background: var(--bg-card); 
+            border-radius: 24px; 
+            padding: 30px; 
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-full-width { grid-column: 1 / span 3; }
+
+        .card-header { margin-bottom: 15px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; display: flex; align-items: center; gap: 12px;}
+        .card-title { font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; }
+
+        .sensor-container { display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; min-height: 120px; }
+        .sensor-value { font-size: 4.5rem; font-weight: 800; color: var(--primary-ocean); }
+        .sensor-unit { font-size: 1rem; color: #94a3b8; margin-top: -10px; }
+
+        .battery-container { position: relative; width: 100%; height: 35px; background: #f1f5f9; border-radius: 50px; overflow: hidden; margin-top: 15px;}
+        .battery-bar { height: 100%; background: var(--success); transition: width 0.5s ease; border-radius: 50px; }
+        .battery-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #64748b; font-weight: 700; font-size: 0.8rem;}
+
+        .control-desc { font-size: 0.85rem; color: #64748b; line-height: 1.4; margin-bottom: 20px; }
+        .control-group { display: flex; flex-direction: column; gap: 15px; }
+        
+        button { 
+            padding: 20px; border-radius: 50px; border: none;
+            font-weight: 700; text-transform: uppercase; font-size: 0.75rem; cursor: pointer;
+            transition: all 0.3s ease; letter-spacing: 1.5px;
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+        }
+
+        .btn-activate { background: #e9f5fd; color: #0077be; border: 1px solid #d1e9fa; }
+        .btn-activate:hover { background: #d1e9fa; transform: scale(1.02); }
+        
+        .btn-stop { background: #fff1f1; color: var(--danger); border: 1px solid #ffe4e4; }
+        .btn-stop:hover { background: #ffe4e4; transform: scale(1.02); }
+
+        .chart-wrapper { height: 300px; width: 100%; margin-top: 10px; }
+
+        @media (max-width: 950px) { .dashboard-grid { grid-template-columns: 1fr; } .card-full-width { grid-column: 1; } }
+    </style>
+</head>
+<body>
+    
+    <div class="page-container">
+        
+        <header class="hero-section">
+            <img src="ECO-FLOW BOT.png" alt="Eco Flow Logo" class="logo-custom">
+        </header>
+
+        <section class="dashboard-section">
+            <div class="status-header">
+                <div style="font-size: 1.4rem; font-weight: 800;">Panel de Control</div>
+                <div style="background:#e6fcf5; color:var(--success); padding:6px 15px; border-radius:50px; font-weight:bold; display:flex; align-items:center; gap:8px; font-size:0.8rem;">
+                    <div style="width:8px; height:8px; background:var(--success); border-radius:50%;"></div>ONLINE
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="card">
+                    <div class="card-header"><i class="fas fa-water"></i><span class="card-title">Calidad del Agua (Turbidez)</span></div>
+                    <div class="sensor-container"><div id="val-turbidez" class="sensor-value">--</div><div class="sensor-unit">NTU</div></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><i class="fas fa-battery-half"></i><span class="card-title">Estado de Energía</span></div>
+                    <div class="sensor-container"><div id="val-bateria" class="sensor-value" style="font-size:4rem">--</div><div class="sensor-unit">% Puntos de Vida</div></div>
+                    <div class="battery-container"><div id="bar-bateria" class="battery-bar" style="width: 100%"></div><div id="text-bateria" class="battery-text">100%</div></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><i class="fas fa-cog"></i><span class="card-title">Gestión de Sistema</span></div>
+                    <p class="control-desc">Activación manual del ciclo de retrolavado.</p>
+                    <div class="control-group">
+                        <button class="btn-activate" onclick="enviarOrden('V2', 1)"><i class="fas fa-play"></i>ACTIVAR RETROLAVADO</button>
+                        <button class="btn-stop" onclick="enviarOrden('V2', 0)"><i class="fas fa-stop"></i>DETENER SISTEMA</button>
+                    </div>
+                </div>
+
+                <div class="card card-full-width">
+                    <div class="card-header"><i class="fas fa-chart-line"></i><span class="card-title">Monitorización de Caudal (L/min)</span></div>
+                    <div class="chart-wrapper"><canvas id="caudalChart"></canvas></div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const token = "ZiVtXL3-4g55BsMnegpmWWdO0jYJPA92";
+        const baseURL = "https://blynk.cloud/external/api/";
+
+        const ctx = document.getElementById('caudalChart').getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 300); 
+        gradient.addColorStop(0, 'rgba(0, 119, 190, 0.4)');
+        gradient.addColorStop(1, 'rgba(0, 119, 190, 0)');
+
+        let caudalChart = new Chart(ctx, {
+            type: 'line',
+            data: { labels: Array(40).fill(""), datasets: [{ data: Array(40).fill(0), borderColor: '#0077be', backgroundColor: gradient, fill: true, tension: 0.4, borderWidth: 3, pointRadius: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, scales: { x: { display: false }, y: { beginAtZero: true, max: 35, grid: { color: 'rgba(0,0,0,0.02)' }, ticks: { color: '#94a3b8', font: { family: 'Poppins' }} } }, plugins: { legend: { display: false } } }
+        });
+
+        async function getPinValue(pin) {
+            try {
+                const response = await fetch(`${baseURL}get?token=${token}&${pin}`);
+                return await response.text();
+            } catch (e) { return null; }
+        }
+
+        async function enviarOrden(pin, valor) {
+            fetch(`${baseURL}update?token=${token}&${pin}=${valor}`);
+        }
+
+        async function actualizarDashboard() {
+            const turbidez = await getPinValue('V0');
+            if (turbidez) document.getElementById('val-turbidez').innerText = parseFloat(turbidez).toFixed(1);
+
+            const caudal = await getPinValue('V1');
+            if (caudal) {
+                caudalChart.data.datasets[0].data.push(parseFloat(caudal));
+                caudalChart.data.datasets[0].data.shift();
+                caudalChart.update('none'); 
+            }
+
+            const bateria = await getPinValue('V3');
+            if (bateria) {
+                let bat = parseInt(bateria);
+                document.getElementById('val-bateria').innerText = bat + "%";
+                document.getElementById('bar-bateria').style.width = bat + "%";
+                document.getElementById('text-bateria').innerText = bat + "%";
+                document.getElementById('bar-bateria').style.backgroundColor = (bat < 20) ? '#e03131' : '#0ca678';
+            }
+        }
+
+        setInterval(actualizarDashboard, 1500);
+        actualizarDashboard();
+    </script>
+</body>
+</html>
