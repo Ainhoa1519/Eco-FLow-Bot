@@ -1,4 +1,4 @@
-/* 1. CREDENCIALES DE BLYNK (Cópialas de tu panel web de Blynk) */
+/* CREDENCIALES DE BLYNK  */
 #define BLYNK_TEMPLATE_ID "TMPL2zY8z_qW3"
 #define BLYNK_TEMPLATE_NAME "Eco Flow Bot"
 #define BLYNK_AUTH_TOKEN "ZiVtXL3-4g55BsMnegpmWWdO0jYJPA92"
@@ -8,9 +8,10 @@
 #include <WiFiClient.h>
 #include <BlynkSimpleEsp32.h>
 
-/* 2. CREDENCIALES DE TU WIFI (O del punto de acceso de tu móvil) */
-char ssid[] = "MOVISTAR_3B81";
-char pass[] = "B372252CsuKQvL2rJf22";
+/* WIFI 
+char ssid[] = "";
+char pass[] = "";
+*/
 
 int nivelBateria = 100;
 const int pinLedFisico = 8;    // LED de Batería
@@ -20,24 +21,24 @@ bool estadoParpadeo = false;
 BlynkTimer timer; 
 
 void actualizarSensores() {
-  // SI HAY BATERÍA, FUNCIONA TODO
+  // si hay batería ->  FUNCIONA TODO
   if (nivelBateria > 0) {
-    // 1. Simulación de Turbidez
+    //Simulación de Turbidez
     int turbidez = random(10, 25); // Valores normales de agua
     Blynk.virtualWrite(V0, turbidez);
 
-    // 2. Simulación de Caudal (fluctuación suave para que se vea el gráfico)
+    // Simulación de Caudal 
     // Genera un valor entre 20.0 y 25.0
     float caudal = 20.0 + (random(0, 500) / 100.0); 
     Blynk.virtualWrite(V1, caudal);
 
     nivelBateria--; // Baja la batería
   } 
-  // SI NO HAY BATERÍA, SENSORES A CERO
+  // si no hay batería -> SENSORES A CERO
   else {
     Blynk.virtualWrite(V0, 0);
     Blynk.virtualWrite(V1, 0);
-    digitalWrite(pinMotorFisico, LOW); // Por seguridad, si no hay luz, no hay motor
+    digitalWrite(pinMotorFisico, LOW); // seguridad -> si no hay luz, no hay motor
   }
 
   // Actualizar widget de batería
@@ -57,7 +58,7 @@ void actualizarSensores() {
   }
 }
 
-// ESTA FUNCIÓN CONTROLA EL BOTÓN DE RETROLAVADO
+// BOTÓN DE RETROLAVADO
 BLYNK_WRITE(V2) {
   int valorBoton = param.asInt(); 
   if (nivelBateria > 0) { // Solo funciona si hay batería
